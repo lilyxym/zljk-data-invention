@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>全国与山西分部数据趋势看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+    <style>
+        .dashboard {padding: 20px; max-width: 1600px; margin: auto;}
+        .chart-container {width: 100%; height: 400px; margin-bottom: 40px;}
+        h1 {text-align: center; color: #2c3e50;}
+        h2 {color: #333; border-left: 4px solid #409EFF; padding-left: 10px;}
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>全国与山西分部数据趋势对比（2024年12月）</h1>
+        
+        <!-- 图表容器 -->
+        <div id="chart1" class="chart-container"></div>
+        <div id="chart2" class="chart-container"></div>
+        <div id="chart3" class="chart-container"></div>
+        <div id="chart4" class="chart-container"></div>
+        <div id="chart5" class="chart-container"></div>
+        <div id="chart6" class="chart-container"></div>
+    </div>
+
+    <script>
+        // 数据预处理函数
+        const processData = (rawData, region) => {
+            return {
+                dates: rawData.map(item => item.H.split(' ')[0]), // 统一日期格式
+                ratios: rawData.map(item => parseFloat(item.B)),
+                stuActions: rawData.map(item => parseFloat(item.C)),
+                stuDays: rawData.map(item => parseFloat(item.D)),
+                teaActions: rawData.map(item => parseFloat(item.E)),
+                teaDays: rawData.map(item => parseFloat(item.F)),
+                reviewRates: rawData.map(item => parseFloat(item.G)),
+                region: region
+            };
+        };
+
+        // 全国分部完整数据
+        const nationalData = processData([
+            {B:'76.78', C:'1803.19', D:'7.67', E:'3795.84', F:'18.07', G:'90.34', H:'2024-12-03 00:00:00'},
+            {B:'76.18', C:'1833.17', D:'7.85', E:'3868.85', F:'18.36', G:'90.64', H:'2024-12-04'},
+            {B:'75.61', C:'1860.93', D:'8.01', E:'3946.33', F:'18.64', G:'90.87', H:'2024-12-05'},
+            {B:'74.92', C:'1929.02', D:'8.44', E:'4100.04', F:'19.18', G:'91.1', H:'2024-12-08'},
+            {B:'73.33', C:'2002.48', D:'8.88', E:'4317.41', F:'20.05', G:'91.83', H:'2024-12-11 00:00:00'},
+            {B:'72.84', C:'2027.98', D:'9.02', E:'4397.81', F:'20.34', G:'92.13', H:'2024-12-12'},
+            {B:'72.28', C:'2086.77', D:'9.34', E:'4557.17', F:'20.89', G:'92.6', H:'2024-12-15'},
+            {B:'71.85', C:'2107.23', D:'9.47', E:'4659.85', F:'21.20', G:'92.91', H:'2024-12-16 00:00:00'},
+            {B:'71.48', C:'2127.77', D:'9.60', E:'4765.70', F:'21.51', G:'93.17', H:'2024-12-17 00:00:00'},
+            {B:'71.16', C:'2146.70', D:'9.73', E:'4848.65', F:'21.82', G:'93.44', H:'2024-12-18'},
+            {B:'70.31', C:'2217.84', D:'10.12', E:'5114.50', F:'22.63', G:'94.23', H:'2024-12-22'},
+            {B:'69.91', C:'2238.98', D:'10.23', E:'5199.28', F:'22.95', G:'94.57', H:'2024-12-23'},
+            {B:'69.50', C:'2260.30', D:'10.36', E:'5290.78', F:'23.24', G:'94.86', H:'2024-12-24'},
+            {B:'69.04', C:'2281.22', D:'10.48', E:'5389.67', F:'23.51', G:'95.25', H:'2024-12-25'}
+        ], '全国分部');
+
+        // 山西分部完整数据
+        const shanxiData = processData([
+            {B:'92.49', C:'1805.59', D:'7.11', E:'2011.12', F:'12.77', G:'91.00', H:'2024-12-03'},
+            {B:'91.25', C:'1831.79', D:'7.29', E:'2084.10', F:'12.95', G:'91.31', H:'2024-12-04'},
+            {B:'90.29', C:'1854.49', D:'7.45', E:'2169.34', F:'13.18', G:'91.72', H:'2024-12-05'},
+            {B:'88.58', C:'1911.63', D:'7.81', E:'2276.16', F:'13.54', G:'92.18', H:'2024-12-08'},
+            {B:'86.34', C:'1974.16', D:'8.17', E:'2425.57', F:'14.24', G:'92.93', H:'2024-12-11 00:00:00'},
+            {B:'85.63', C:'1994.83', D:'8.28', E:'2478.24', F:'14.50', G:'93.18', H:'2024-12-12'},
+            {B:'85.04', C:'2038.65', D:'8.53', E:'2578.82', F:'15.01', G:'93.49', H:'2024-12-15'},
+            {B:'83.94', C:'2051.80', D:'8.64', E:'2627.05', F:'15.30', G:'93.90', H:'2024-12-16'},
+            {B:'83.12', C:'2065.75', D:'8.75', E:'2676.78', F:'15.61', G:'94.25', H:'2024-12-17 00:00:00'},
+            {B:'82.47', C:'2078.68', D:'8.87', E:'2739.10', F:'15.85', G:'94.65', H:'2024-12-18'},
+            {B:'80.95', C:'2125.55', D:'9.17', E:'2908.01', F:'16.55', G:'95.41', H:'2024-12-22'},
+            {B:'79.21', C:'2136.71', D:'9.25', E:'2918.12', F:'17.05', G:'95.69', H:'2024-12-23'},
+            {B:'78.53', C:'2148.07', D:'9.34', E:'2974.04', F:'17.39', G:'96.12', H:'2024-12-24'},
+            {B:'77.41', C:'2159.37', D:'9.44', E:'3024.98', F:'17.57', G:'96.62', H:'2024-12-25'}
+        ], '山西分部');
+
+        // 动态创建图表函数
+        const createChart = (id, title, unit, nationalKey, shanxiKey) => {
+            const chart = echarts.init(document.getElementById(id));
+            chart.setOption({
+                title: { text: title, left: 'center', textStyle: { fontSize: 16 } },
+                tooltip: { 
+                    trigger: 'axis',
+                    formatter: params => {
+                        return `${params[0].axisValue}<br>
+                        ${params[0].marker} 全国: ${params[0].data}<br>
+                        ${params[1].marker} 山西: ${params[1].data}`;
+                    }
+                },
+                legend: { data: ['全国', '山西'], top: 35 },
+                grid: { top: 80, bottom: 30 },
+                xAxis: {
+                    type: 'category',
+                    data: nationalData.dates,
+                    axisLabel: { rotate: 45 }
+                },
+                yAxis: { name: unit, type: 'value' },
+                series: [
+                    {
+                        name: '全国',
+                        type: 'line',
+                        data: nationalData[nationalKey],
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        lineStyle: { width: 3 },
+                        itemStyle: { color: '#5470C6' }
+                    },
+                    {
+                        name: '山西',
+                        type: 'line',
+                        data: shanxiData[shanxiKey],
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        lineStyle: { width: 3 },
+                        itemStyle: { color: '#EE6666' }
+                    }
+                ],
+                dataZoom: [{ type: 'inside', start: 0, end: 100 }]
+            });
+        };
+
+        // 初始化图表
+        window.onload = () => {
+            createChart('chart1', '生师比趋势', '比值', 'ratios', 'ratios');
+            createChart('chart2', '学生人均在线行为次数', '次/人', 'stuActions', 'stuActions');
+            createChart('chart3', '学生人均上线天数', '天/人', 'stuDays', 'stuDays');
+            createChart('chart4', '教师人均在线行为次数', '次/人', 'teaActions', 'teaActions');
+            createChart('chart5', '教师人均上线天数', '天/人', 'teaDays', 'teaDays');
+            createChart('chart6', '教师评阅率趋势', '百分比', 'reviewRates', 'reviewRates');
+        };
+    </script>
+</body>
+</html>
